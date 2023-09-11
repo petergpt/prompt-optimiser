@@ -37,7 +37,7 @@ if st.button("Generate Optimized Prompt"):
 
     # Stage 1: Generate Prompts
     with st.spinner('Stage 1: Generating Prompts...'):
-        st.session_state.generated_prompts = generate_prompts(initial_prompt, st.session_state.num_prompts, task=st.session_state.task)
+    st.session_state.generated_prompts = generate_prompts(initial_prompt, st.session_state.num_prompts)
     st.write("Generated Prompts:")
     st.write(st.session_state.generated_prompts)
 

@@ -9,21 +9,38 @@ st.title("GPT-4 Prompt Optimizer")
 
 task = st.text_area("Enter your task:", "Write a summary of the solar system")
 num_prompts = st.slider("Number of Prompts:", min_value=2, max_value=10, value=4)
+previous_solutions = []
 
 if st.button("Generate Optimized Prompt"):
-    with st.spinner('Generating prompts...'):
-        N = 5
-        previous_solutions = []
+    # Perform one iteration only
+    N = 1
+    
+    # Stage 1: Generate Prompts
+    with st.spinner('Stage 1: Generating Prompts...'):
+        generated_prompts = generate_prompts(task, num_prompts)
+    st.write("Generated Prompts:", generated_prompts)
+
+    # Stage 2: Generate Responses
+    with st.spinner('Stage 2: Generating Responses...'):
+        generated_responses = generate_responses(generated_prompts, task)
+    st.write("Generated Responses:", generated_responses)
         
+    # Stage 3: Evaluate Responses
+    with st.spinner('Stage 3: Evaluating Responses...'):
+        evaluation = evaluate_responses(generated_responses, task)
+    st.write("Evaluation:", evaluation)
+
+    # Finalizing
+    with st.spinner('Finalizing...'):
         conversation, best_solution, best_score = simulate_conversation(N, task, generate_next_message, num_prompts, previous_solutions)
         
         for message in conversation:
             st.write(f"{message['role'].capitalize()}: {message['content']}")
         
-        st.write('Best Solution Found:')
-        st.write(best_solution)
-        st.write('Score:')
-        st.write(best_score)
+        st.write('Best Solution Found:', best_solution)
+        st.write('Score:', best_score)
+        
+        previous_solutions.append({'solution': best_solution, 'score': best_score})
 
-    if st.button("Run Another Cycle"):
+    if st.button("Run Another Iteration"):
         st.experimental_rerun()

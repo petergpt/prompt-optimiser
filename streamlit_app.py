@@ -17,23 +17,25 @@ if st.button("Generate Optimized Prompt"):
     # Stage 1: Generate Prompts
     with st.spinner('Stage 1: Generating Prompts...'):
         generated_prompts = generate_prompts(task, num_prompts)
-    st.write("Generated Prompts:", generated_prompts)
+    st.markdown("## Generated Prompts:")
+    for prompt in generated_prompts:
+        st.markdown(f"- {prompt}")
 
     # Stage 2: Generate Responses
     with st.spinner('Stage 2: Generating Responses...'):
         generated_responses = generate_responses(generated_prompts, task)
-    st.write("Generated Responses:", generated_responses)
+    st.markdown("## Generated Responses:")
+    st.write(generated_responses)
         
     # Stage 3: Evaluate Responses
     with st.spinner('Stage 3: Evaluating Responses...'):
         evaluation = evaluate_responses(generated_responses, task)
-    st.write("Evaluation:", evaluation)
-
-    # Create Markdown Table for Evaluation
+    st.markdown("## Evaluation:")
     st.markdown(evaluation)
-
+    
     # Prompt selection for the next iteration
-    selected_prompt = st.selectbox("Choose the prompt for the next iteration:", generated_prompts, index=0)
+    st.markdown("## Choose the prompt for the next iteration:")
+    selected_prompt = st.radio("", generated_prompts)
     
     # Update task for the next iteration
     task = selected_prompt

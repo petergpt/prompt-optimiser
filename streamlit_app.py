@@ -32,15 +32,13 @@ if st.button("Generate Optimized Prompt"):
 
     # Finalizing
     with st.spinner('Finalizing...'):
-        conversation, best_solution, best_score = simulate_conversation(N, task, generate_next_message, num_prompts, previous_solutions)
+        _, best_solution, best_score = simulate_conversation(N, task, generate_next_message, num_prompts, previous_solutions)
         
-        for message in conversation:
-            st.write(f"{message['role'].capitalize()}: {message['content']}")
+    # Display only the best solution and its score
+    st.write('Best Solution Found:', best_solution)
+    st.write('Score:', best_score)
         
-        st.write('Best Solution Found:', best_solution)
-        st.write('Score:', best_score)
-        
-        previous_solutions.append({'solution': best_solution, 'score': best_score})
+    previous_solutions.append({'solution': best_solution, 'score': best_score})
 
     if st.button("Run Another Iteration"):
         st.experimental_rerun()

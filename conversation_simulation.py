@@ -40,7 +40,7 @@ def generate_prompts(task, num_prompts=4):
     for i in range(num_prompts):
         response = openai.ChatCompletion.create(
             model="gpt-4",
-            messages=[{"role": "system", "content": f"Generate a system prompt for the task, be creative and come up with diverse ideas: {task}"}]
+            messages=[{"role": "system", "content": f"Generate one system prompt for the task, take a deep breath and be creative: {task}"}]
         )
         prompts.append(response['choices'][0]['message']['content'].strip())
     return prompts

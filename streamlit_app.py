@@ -9,7 +9,6 @@ st.title("GPT-4 Prompt Optimizer")
 
 task = st.text_area("Enter your task:", "Write a summary of the solar system")
 num_prompts = st.slider("Number of Prompts:", min_value=2, max_value=10, value=4)
-previous_solutions = []
 
 if st.button("Generate Optimized Prompt"):
     # Perform one iteration only
@@ -30,15 +29,17 @@ if st.button("Generate Optimized Prompt"):
         evaluation = evaluate_responses(generated_responses, task)
     st.write("Evaluation:", evaluation)
 
-    # Finalizing
-    with st.spinner('Finalizing...'):
-        _, best_solution, best_score = simulate_conversation(N, task, generate_next_message, num_prompts, previous_solutions)
-        
-    # Display only the best solution and its score
-    st.write('Best Solution Found:', best_solution)
-    st.write('Score:', best_score)
-        
-    previous_solutions.append({'solution': best_solution, 'score': best_score})
+    # Create Markdown Table for Evaluation
+    eval_lines = evaluation.split("\n")
+    table_header = "| Response Number | Evaluation |\n| --- | --- |\n"
+    table_content = "".join([f"| {i+1} | {line.split(': ')[1]} |\n" for i, line in enumerate(eval_lines) if line])
+    st.markdown(table_header + table_content)
+    
+    # Prompt selection for the next iteration
+    selected_prompt = st.selectbox("Choose the prompt for the next iteration:", generated_prompts, index=0)
+    
+    # Update task for the next iteration
+    task = selected_prompt
 
     if st.button("Run Another Iteration"):
         st.experimental_rerun()

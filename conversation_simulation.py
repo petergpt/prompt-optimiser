@@ -40,7 +40,7 @@ def generate_prompts(task, num_prompts=4):
     for i in range(num_prompts):
         response = openai.ChatCompletion.create(
             model="gpt-4",
-            messages=[{"role": "system", "content": f"Generate a system prompt for the task: {task}"}]
+            messages=[{"role": "system", "content": f"Generate a system prompt for the task, be creative and come up with diverse ideas: {task}"}]
         )
         prompts.append(response['choices'][0]['message']['content'].strip())
     return prompts
@@ -56,7 +56,7 @@ def generate_responses(prompts, task):
     return responses
 
 def evaluate_responses(responses, task):
-    evaluation_prompt = f"Given the task '{task}', evaluate the following responses for quality:\n"
+    evaluation_prompt = f"Given the task '{task}', evaluate the following responses for quality. Please give a score to each of the responses out of 5 (5 being the highest. Pleaase create markdown table showing the feedback and the results.):\n"
     for i, response in enumerate(responses):
         evaluation_prompt += f"Response {i+1}: {response}\n"
     

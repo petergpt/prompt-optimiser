@@ -1,6 +1,5 @@
 import streamlit as st
 from api_setup import setup_api_key
-from conversation_simulation import simulate_conversation, generate_prompts, generate_responses, evaluate_responses
 
 # Initialize session state
 if 'selected_prompt' not in st.session_state:

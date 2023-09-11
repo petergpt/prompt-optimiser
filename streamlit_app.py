@@ -27,10 +27,6 @@ st.title("GPT-4 Prompt Optimizer")
 st.session_state.task = st.text_area("Enter your task:", st.session_state.task)
 st.session_state.num_prompts = st.slider("Number of Prompts:", min_value=2, max_value=10, value=st.session_state.num_prompts)
 
-# Create empty placeholders for radio and button
-radio_placeholder = st.empty()
-button_placeholder = st.empty()
-
 if st.button("Generate Optimized Prompt"):
     N = 1
     initial_prompt = st.session_state.selected_prompt if st.session_state.selected_prompt else st.session_state.task
@@ -39,27 +35,24 @@ if st.button("Generate Optimized Prompt"):
     with st.spinner('Stage 1: Generating Prompts...'):
         st.session_state.generated_prompts = generate_prompts(initial_prompt, st.session_state.num_prompts)
     st.write("Generated Prompts:")
-    st.write(st.session_state.generated_prompts)  
+    st.write(st.session_state.generated_prompts)
 
     # Stage 2: Generate Responses
     with st.spinner('Stage 2: Generating Responses...'):
         st.session_state.generated_responses = generate_responses(st.session_state.generated_prompts, st.session_state.task)
     st.write("Generated Responses:")
     st.write(st.session_state.generated_responses)
-        
+
     # Stage 3: Evaluate Responses
     with st.spinner('Stage 3: Evaluating Responses...'):
         st.session_state.evaluation = evaluate_responses(st.session_state.generated_responses, st.session_state.task)
     st.write("Evaluation:")
     st.markdown(st.session_state.evaluation)
 
-# Populate the placeholders if results are available
+# Place the radio and button at the bottom
 if st.session_state.generated_prompts:
-    st.write("Evaluation:")
-    st.markdown(st.session_state.evaluation)
-
-    radio_placeholder.write("Choose the prompt for the next iteration:")
-    st.session_state.selected_prompt = radio_placeholder.radio("", st.session_state.generated_prompts)
-
-    if button_placeholder.button("Run Another Iteration"):
+    st.write("Choose the prompt for the next iteration:")
+    st.session_state.selected_prompt = st.radio("", st.session_state.generated_prompts)
+    
+    if st.button("Run Another Iteration"):
         st.experimental_rerun()

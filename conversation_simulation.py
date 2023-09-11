@@ -1,60 +1,48 @@
-import streamlit as st
-from api_setup import setup_api_key
+import openai
 
-# Initialize session state
-if 'selected_prompt' not in st.session_state:
-    st.session_state.selected_prompt = None
+def simulate_conversation(initial_message, num_prompts=4):
+    meta_prompt = f"{initial_message}\n"
+    messages = [{"role": "system", "content": meta_prompt}]
 
-if 'task' not in st.session_state:
-    st.session_state.task = "Write a summary of the solar system"
-
-if 'num_prompts' not in st.session_state:
-    st.session_state.num_prompts = 4
-
-if 'generated_prompts' not in st.session_state:
-    st.session_state.generated_prompts = []
-
-if 'generated_responses' not in st.session_state:
-    st.session_state.generated_responses = []
-
-if 'evaluation' not in st.session_state:
-    st.session_state.evaluation = ""
-
-st.title("GPT-4 Prompt Optimizer")
-
-# Widgets
-st.session_state.task = st.text_area("Enter your task:", st.session_state.task)
-st.session_state.num_prompts = st.slider("Number of Prompts:", min_value=2, max_value=10, value=st.session_state.num_prompts)
-
-# Create empty placeholders for radio and button
-radio_placeholder = st.empty()
-button_placeholder = st.empty()
-
-if st.button("Generate Optimized Prompt"):
-    N = 1
-    initial_prompt = st.session_state.selected_prompt if st.session_state.selected_prompt else st.session_state.task
-
-    # Stage 1: Generate Prompts
-    with st.spinner('Stage 1: Generating Prompts...'):
-        st.session_state.generated_prompts = generate_prompts(initial_prompt, st.session_state.num_prompts, task=st.session_state.task)
-    st.write("Generated Prompts:")
-    st.write(st.session_state.generated_prompts)
-
-    # Stage 2: Generate Responses
-    with st.spinner('Stage 2: Generating Responses...'):
-        st.session_state.generated_responses = generate_responses(st.session_state.generated_prompts, st.session_state.task)
-    st.write("Generated Responses:")
-    st.write(st.session_state.generated_responses)
+    try:
+        prompts = generate_prompts(initial_message, num_prompts)
+        responses = generate_responses(prompts, initial_message)
+        evaluation = evaluate_responses(responses, initial_message)
         
-    # Stage 3: Evaluate Responses
-    with st.spinner('Stage 3: Evaluating Responses...'):
-        st.session_state.evaluation = evaluate_responses(st.session_state.generated_responses, st.session_state.task)
-    st.write("Evaluation:")
-    st.markdown(st.session_state.evaluation)
+        messages.append({"role": "assistant", "content": evaluation})
+        
+    except openai.error.OpenAIError as e:
+        print(f"Error encountered: {e}")
 
-# Populate the placeholders if results are available
-if st.session_state.generated_prompts:
-    radio_placeholder.write("Choose the prompt for the next iteration:")
-    st.session_state.selected_prompt = radio_placeholder.radio("", st.session_state.generated_prompts)
-    if button_placeholder.button("Run Another Iteration"):
-        st.experimental_rerun()
+    return messages
+
+def generate_prompts(task, num_prompts=4):
+    prompts = []
+    for i in range(num_prompts):
+        response = openai.ChatCompletion.create(
+            model="gpt-4",
+            messages=[{"role": "system", "content": f"Generate one system prompt for the task, take a deep breath and be creative: {task}"}]
+        )
+        prompts.append(response['choices'][0]['message']['content'].strip())
+    return prompts
+
+def generate_responses(prompts, task):
+    responses = []
+    for prompt in prompts:
+        response = openai.ChatCompletion.create(
+            model="gpt-4",
+            messages=[{"role": "system", "content": f"{prompt}: {task}"}]
+        )
+        responses.append(response['choices'][0]['message']['content'].strip())
+    return responses
+
+def evaluate_responses(responses, task):
+    evaluation_prompt = f"Given the task '{task}', evaluate the following responses for quality. Please give a score to each of the responses out of 5 (5 being the highest. Pleaase create markdown table showing the feedback and the results.):\n"
+    for i, response in enumerate(responses):
+        evaluation_prompt += f"Response {i+1}: {response}\n"
+    
+    evaluation = openai.ChatCompletion.create(
+        model="gpt-4",
+        messages=[{"role": "system", "content": evaluation_prompt}]
+    )
+    return evaluation['choices'][0]['message']['content'].strip()

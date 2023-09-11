@@ -27,8 +27,11 @@ st.title("GPT-4 Prompt Optimizer")
 st.session_state.task = st.text_area("Enter your task:", st.session_state.task)
 st.session_state.num_prompts = st.slider("Number of Prompts:", min_value=2, max_value=10, value=st.session_state.num_prompts)
 
+# Create empty placeholders for radio and button
+radio_placeholder = st.empty()
+button_placeholder = st.empty()
+
 if st.button("Generate Optimized Prompt"):
-    # Perform one iteration only
     N = 1
     initial_prompt = st.session_state.selected_prompt if st.session_state.selected_prompt else st.session_state.task
 
@@ -50,9 +53,9 @@ if st.button("Generate Optimized Prompt"):
     st.write("Evaluation:")
     st.markdown(st.session_state.evaluation)
 
-# Display radio buttons for prompt selection
-st.write("Choose the prompt for the next iteration:")
-st.session_state.selected_prompt = st.radio("", st.session_state.generated_prompts)
-
-if st.button("Run Another Iteration"):
-    st.experimental_rerun()
+# Populate the placeholders if results are available
+if st.session_state.generated_prompts:
+    radio_placeholder.write("Choose the prompt for the next iteration:")
+    st.session_state.selected_prompt = radio_placeholder.radio("", st.session_state.generated_prompts)
+    if button_placeholder.button("Run Another Iteration"):
+        st.experimental_rerun()

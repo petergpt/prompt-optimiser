@@ -1,39 +1,20 @@
 import openai
 
-def evaluate_solution(solution):
-    return 1  # Placeholder function for scoring solutions
-
-def simulate_conversation(N, initial_message, generate_next_message, num_prompts=4, previous_solutions=[]):
-    meta_prompt = f"{initial_message}\nPrevious Solutions: {previous_solutions}\n"
+def simulate_conversation(initial_message, num_prompts=4):
+    meta_prompt = f"{initial_message}\n"
     messages = [{"role": "system", "content": meta_prompt}]
-    
-    best_solution = None
-    best_score = float('-inf')
-    
-    for _ in range(N):
-        try:
-            prompts = generate_prompts(initial_message, num_prompts)
-            responses = generate_responses(prompts, initial_message)
-            evaluation = evaluate_responses(responses, initial_message)
-            
-            messages.append({"role": "assistant", "content": evaluation})
 
-            score = evaluate_solution(evaluation)
-            
-            if score > best_score:
-                best_score = score
-                best_solution = evaluation
+    try:
+        prompts = generate_prompts(initial_message, num_prompts)
+        responses = generate_responses(prompts, initial_message)
+        evaluation = evaluate_responses(responses, initial_message)
+        
+        messages.append({"role": "assistant", "content": evaluation})
+        
+    except openai.error.OpenAIError as e:
+        print(f"Error encountered: {e}")
 
-            next_message = generate_next_message(evaluation)
-            messages.append({"role": "user", "content": next_message})
-
-            previous_solutions.append({'solution': evaluation, 'score': score})
-
-        except openai.error.OpenAIError as e:
-            print(f"Error encountered: {e}")
-            break
-
-    return messages, best_solution, best_score
+    return messages
 
 def generate_prompts(task, num_prompts=4):
     prompts = []

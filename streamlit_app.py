@@ -3,6 +3,9 @@ from api_setup import setup_api_key
 from conversation_simulation import simulate_conversation, generate_prompts, generate_responses, evaluate_responses
 
 # Initialize session state
+if 'selected_prompt' not in st.session_state:
+    st.session_state.selected_prompt = None
+
 if 'task' not in st.session_state:
     st.session_state.task = "Write a summary of the solar system"
 
@@ -27,10 +30,11 @@ st.session_state.num_prompts = st.slider("Number of Prompts:", min_value=2, max_
 if st.button("Generate Optimized Prompt"):
     # Perform one iteration only
     N = 1
-    
+    initial_prompt = st.session_state.selected_prompt if st.session_state.selected_prompt else st.session_state.task
+
     # Stage 1: Generate Prompts
     with st.spinner('Stage 1: Generating Prompts...'):
-        st.session_state.generated_prompts = generate_prompts(st.session_state.task, st.session_state.num_prompts)
+        st.session_state.generated_prompts = generate_prompts(initial_prompt, st.session_state.num_prompts, task=st.session_state.task)
     st.write("Generated Prompts:")
     st.write(st.session_state.generated_prompts)
 
@@ -45,14 +49,10 @@ if st.button("Generate Optimized Prompt"):
         st.session_state.evaluation = evaluate_responses(st.session_state.generated_responses, st.session_state.task)
     st.write("Evaluation:")
     st.markdown(st.session_state.evaluation)
-    
-# Display the radio buttons even if the button hasn't been clicked yet
-st.write("Choose the prompt for the next iteration:")
-selected_prompt = st.radio("", st.session_state.generated_prompts)
 
-# Update task for the next iteration
-if selected_prompt:
-    st.session_state.task = selected_prompt
+# Display radio buttons for prompt selection
+st.write("Choose the prompt for the next iteration:")
+st.session_state.selected_prompt = st.radio("", st.session_state.generated_prompts)
 
 if st.button("Run Another Iteration"):
     st.experimental_rerun()

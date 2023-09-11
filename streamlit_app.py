@@ -55,7 +55,11 @@ if st.button("Generate Optimized Prompt"):
 
 # Populate the placeholders if results are available
 if st.session_state.generated_prompts:
+    st.write("Evaluation:")
+    st.markdown(st.session_state.evaluation)
+
     radio_placeholder.write("Choose the prompt for the next iteration:")
     st.session_state.selected_prompt = radio_placeholder.radio("", st.session_state.generated_prompts)
+
     if button_placeholder.button("Run Another Iteration"):
         st.experimental_rerun()

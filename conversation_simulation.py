@@ -39,7 +39,7 @@ def generate_responses(prompts, task):
     return responses
 
 def evaluate_responses(responses, task):
-    evaluation_prompt = f"Given the task '{task}', evaluate the following responses for quality giving a score of 1-5 (5 being the highest). Please create a markdown table showing the feedback and the results.:\n"
+    evaluation_prompt = f"Evaluate the quality of the following responses for the task '{task}', giving a score between 1 and 5 (5 being the highest). Create a markdown table showing the feedback and the results.:\n"
     for i, response in enumerate(responses):
         evaluation_prompt += f"Response {i+1}: {response}\n"
     
@@ -48,3 +48,4 @@ def evaluate_responses(responses, task):
         messages=[{"role": "system", "content": evaluation_prompt}]
     )
     return evaluation['choices'][0]['message']['content'].strip()
+

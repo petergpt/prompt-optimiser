@@ -1,11 +1,11 @@
 import openai
 
-def simulate_conversation(initial_message, num_prompts=4):
+def simulate_conversation(initial_message, num_prompts=4, existing_prompt=None):
     meta_prompt = f"{initial_message}\n"
     messages = [{"role": "system", "content": meta_prompt}]
 
     try:
-        prompts = generate_prompts(initial_message, num_prompts)
+        prompts = generate_prompts(initial_message, num_prompts, existing_prompt)
         responses = generate_responses(prompts, initial_message)
         evaluation = evaluate_responses(responses, initial_message)
         
@@ -16,7 +16,7 @@ def simulate_conversation(initial_message, num_prompts=4):
 
     return messages
 
-def generate_prompts(task, num_prompts=4):
+def generate_prompts(task, num_prompts=4, existing_prompt=None):
     prompts = []
     for i in range(num_prompts):
         response = openai.ChatCompletion.create(
@@ -24,6 +24,8 @@ def generate_prompts(task, num_prompts=4):
             messages=[{"role": "system", "content": f"Generate one system prompt for the task, take a deep breath and be creative: {task}"}]
         )
         prompts.append(response['choices'][0]['message']['content'].strip())
+    if existing_prompt:
+        prompts.append(existing_prompt)
     return prompts
 
 def generate_responses(prompts, task):
@@ -37,7 +39,7 @@ def generate_responses(prompts, task):
     return responses
 
 def evaluate_responses(responses, task):
-    evaluation_prompt = f"Given the task '{task}', evaluate the following responses for quality. Please give a score to each of the responses out of 5 (5 being the highest. Pleaase create markdown table showing the feedback and the results.):\n"
+    evaluation_prompt = f"Given the task '{task}', evaluate the following responses for quality. Please create a markdown table showing the feedback and the results.:\n"
     for i, response in enumerate(responses):
         evaluation_prompt += f"Response {i+1}: {response}\n"
     

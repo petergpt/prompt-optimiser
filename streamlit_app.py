@@ -10,7 +10,7 @@ if 'selected_prompt' not in st.session_state:
     st.session_state.selected_prompt = None
 
 if 'task' not in st.session_state:
-    st.session_state.task = "Write a summary of the solar system"
+    st.session_state.task = "Generate ideas to apply Generative AI for a B2B business"
 
 if 'num_prompts' not in st.session_state:
     st.session_state.num_prompts = 4
@@ -37,6 +37,11 @@ if st.button("Generate Optimized Prompt") or st.session_state.rerun:
     # Stage 1: Generate Prompts
     with st.spinner('Stage 1: Generating Prompts...'):
         st.session_state.generated_prompts = generate_prompts(initial_prompt, st.session_state.num_prompts)
+        
+        # Add the selected prompt back into the list for evaluation
+        if st.session_state.selected_prompt:
+            st.session_state.generated_prompts.append(st.session_state.selected_prompt)
+        
     st.write("Generated Prompts:")
     st.write(st.session_state.generated_prompts)
 

@@ -30,11 +30,8 @@ if st.button("Generate Optimized Prompt"):
     st.write("Evaluation:", evaluation)
 
     # Create Markdown Table for Evaluation
-    eval_lines = evaluation.split("\n")
-    table_header = "| Response Number | Evaluation |\n| --- | --- |\n"
-    table_content = "".join([f"| {i+1} | {line.split(': ')[1]} |\n" for i, line in enumerate(eval_lines) if line])
-    st.markdown(table_header + table_content)
-    
+    st.markdown(evaluation)
+
     # Prompt selection for the next iteration
     selected_prompt = st.selectbox("Choose the prompt for the next iteration:", generated_prompts, index=0)
     

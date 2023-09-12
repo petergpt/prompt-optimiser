@@ -29,7 +29,7 @@ def generate_responses(prompts, task):
     with ThreadPoolExecutor(max_workers=len(prompts)) as executor:
         future_to_response = {executor.submit(openai.ChatCompletion.create,
                                               model="gpt-4",
-                                              messages=[{"role": "system", "content": f"{prompt}: {task}"}],
+                                              messages=[{"role": "system", "content": f"{prompt}: {task}. Keep it short."}],
                                               max_tokens=500,
                                               top_p=1,
                                               frequency_penalty=0,

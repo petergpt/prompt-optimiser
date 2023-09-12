@@ -38,9 +38,10 @@ def generate_prompts(task, num_prompts=4, existing_prompt=None):
         prompts.append(existing_prompt)
     return prompts
 
-# generate_responses
 def generate_responses(prompts, task):
     responses = []
+    if not prompts:  # check if prompts is empty
+        return responses
     with ThreadPoolExecutor(max_workers=len(prompts)) as executor:
         future_to_response = {executor.submit(openai.ChatCompletion.create,
                                               model="gpt-3",

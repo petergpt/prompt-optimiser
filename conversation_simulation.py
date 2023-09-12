@@ -33,10 +33,15 @@ def generate_responses(prompts, task):
     for prompt in prompts:
         response = openai.ChatCompletion.create(
             model="gpt-4",
-            messages=[{"role": "system", "content": f"{prompt}: {task}"}]
+            messages=[{"role": "system", "content": f"{prompt}: {task}"}],
+            max_tokens=500,
+            top_p=1,
+            frequency_penalty=0,
+            presence_penalty=0
         )
         responses.append(response['choices'][0]['message']['content'].strip())
     return responses
+
 
 def evaluate_responses(responses, task):
     evaluation_prompt = f"Evaluate the quality of the following responses for the task '{task}', giving a score between 1 and 5 (5 being the highest). Create a markdown table showing the feedback and the results.:\n"

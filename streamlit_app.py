@@ -24,8 +24,8 @@ if st.button("Generate Optimized Prompt"):
     # Stage 1: Generate Prompts
     with st.spinner('Stage 1: Generating Prompts...'):
         st.session_state.generated_prompts = generate_prompts(task, num_prompts, st.session_state.selected_prompt)
-        st.write("Generated Prompts:")
-        st.write(st.session_state.generated_prompts)
+    st.write("Generated Prompts:")
+    st.write(st.session_state.generated_prompts)
 
     # Stage 2: Generate Responses
     with st.spinner('Stage 2: Generating Responses...'):
@@ -42,6 +42,6 @@ if st.button("Generate Optimized Prompt"):
 # Show radio buttons and button only if prompts have been generated
 if st.session_state.generated_prompts:
     st.write("Choose the prompt for the next iteration:")
-    st.session_state.selected_prompt = st.radio("", st.session_state.generated_prompts)
+    st.session_state.selected_prompt = st.radio("", st.session_state.generated_prompts, key='selected_prompt')
     if st.button("Run Another Iteration"):
         st.experimental_rerun()

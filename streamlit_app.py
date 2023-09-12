@@ -34,10 +34,6 @@ if st.button("Start the Process"):
         placeholder_for_prompt.write("Generated Prompts:")
         placeholder_for_prompt.write(st.session_state.generated_prompts)
 
-    # Radio buttons to select prompt for next round
-    if st.session_state.generated_prompts:
-        st.session_state.selected_prompt = st.radio("Choose a prompt for the next round:", st.session_state.generated_prompts)
-
     with st.spinner('Generating Responses...'):
         st.session_state.generated_responses = generate_responses(st.session_state.generated_prompts, st.session_state.task)
         placeholder_for_response.write("Generated Responses:")
@@ -47,3 +43,7 @@ if st.button("Start the Process"):
         st.session_state.evaluation = evaluate_responses(st.session_state.generated_responses, st.session_state.task)
         placeholder_for_evaluation.markdown("Evaluation:")
         placeholder_for_evaluation.markdown(st.session_state.evaluation)
+
+    # Radio buttons to select prompt for next round
+    if st.session_state.generated_prompts:
+        st.session_state.selected_prompt = st.radio("Choose a prompt for the next round:", st.session_state.generated_prompts)

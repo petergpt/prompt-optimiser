@@ -21,7 +21,7 @@ if 'evaluation' not in st.session_state:
     st.session_state.evaluation = ""
 
 # Streamlit UI
-st.title("GPT-3 Conversation Starter")
+st.title("GPT-4 Conversation Starter")
 
 # Widgets
 st.session_state.task = st.text_area("Enter your task:", st.session_state.task)

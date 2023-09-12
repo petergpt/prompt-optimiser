@@ -23,7 +23,7 @@ def generate_prompts(task, num_prompts=4, existing_prompt=None):
     prompts = []
     with ThreadPoolExecutor(max_workers=num_prompts) as executor:
         future_to_prompt = {executor.submit(openai.ChatCompletion.create,
-                                            model="gpt-3",
+                                            model="gpt-4",
                                             messages=[{"role": "system", 
                                                        "content": f"Generate one system prompt for the task, take a deep breath and be creative: {task}"}]
                                            ): i for i in range(num_prompts)}
@@ -44,7 +44,7 @@ def generate_responses(prompts, task):
         return responses
     with ThreadPoolExecutor(max_workers=len(prompts)) as executor:
         future_to_response = {executor.submit(openai.ChatCompletion.create,
-                                              model="gpt-3",
+                                              model="gpt-4",
                                               messages=[{"role": "system", "content": f"{prompt}: {task}"}],
                                               max_tokens=500,
                                               top_p=1,

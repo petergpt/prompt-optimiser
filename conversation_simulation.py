@@ -1,24 +1,8 @@
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import openai
+
 openai.log='debug'
 
-def simulate_conversation(initial_message, num_prompts=4, existing_prompt=None):
-    meta_prompt = f"{initial_message}\n"
-    messages = [{"role": "system", "content": meta_prompt}]
-
-    try:
-        prompts = generate_prompts(initial_message, num_prompts, existing_prompt)
-        responses = generate_responses(prompts, initial_message)
-        evaluation = evaluate_responses(responses, initial_message)
-        
-        messages.append({"role": "assistant", "content": evaluation})
-        
-    except openai.error.OpenAIError as e:
-        print(f"Error encountered: {e}")
-
-    return messages
-
-# generate_prompts
 def generate_prompts(task, num_prompts=4, existing_prompt=None):
     prompts = []
     with ThreadPoolExecutor(max_workers=num_prompts) as executor:
@@ -61,6 +45,8 @@ def generate_responses(prompts, task):
     return responses
 
 def evaluate_responses(responses, task):
+    if not responses:  # check if responses is empty
+        return ""
     evaluation_prompt = f"Evaluate the quality of the following responses for the task '{task}', giving a score between 1 and 5 (5 being the highest). Create a markdown table showing the feedback and the results.:\n"
     for i, response in enumerate(responses):
         evaluation_prompt += f"Response {i+1}: {response}\n"

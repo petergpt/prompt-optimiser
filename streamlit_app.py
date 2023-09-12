@@ -21,13 +21,13 @@ if 'evaluation' not in st.session_state:
     st.session_state.evaluation = ""
 
 # Streamlit UI
-st.title("GPT-4 Prompt Optimizer")
+st.title("GPT-3 Conversation Starter")
 
 # Widgets
 st.session_state.task = st.text_area("Enter your task:", st.session_state.task)
 st.session_state.num_prompts = st.slider("Number of Prompts:", min_value=2, max_value=10, value=st.session_state.num_prompts)
 
-if st.button("Generate Optimized Prompt"):
+if st.button("Generate Prompt"):
     with st.spinner('Generating Prompts...'):
         st.session_state.generated_prompts = generate_prompts(st.session_state.task, st.session_state.num_prompts)
     with st.spinner('Generating Responses...'):

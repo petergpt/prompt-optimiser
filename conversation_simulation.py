@@ -1,3 +1,4 @@
+from concurrent.futures import ThreadPoolExecutor
 import openai
 openai.log='debug'
 
@@ -19,30 +20,38 @@ def simulate_conversation(initial_message, num_prompts=4, existing_prompt=None):
 
 def generate_prompts(task, num_prompts=4, existing_prompt=None):
     prompts = []
-    for i in range(num_prompts):
-        response = openai.ChatCompletion.create(
-            model="gpt-4",
-            messages=[{"role": "system", "content": f"Generate one system prompt for the task, take a deep breath and be creative: {task}"}]
-        )
-        prompts.append(response['choices'][0]['message']['content'].strip())
+    with ThreadPoolExecutor(max_workers=num_prompts) as executor:
+        future_to_prompt = {executor.submit(chat_completion, task): i for i in range(num_prompts)}
+        for future in concurrent.futures.as_completed(future_to_prompt):
+            try:
+                prompt = future.result()
+                prompts.append(prompt)
+            except Exception as exc:
+                print('%r generated an exception: %s' % (future_to_prompt[future], exc))
+
     if existing_prompt:
         prompts.append(existing_prompt)
     return prompts
 
+def chat_completion(task):
+    response = openai.ChatCompletion.create(
+        model="gpt-4",
+        messages=[{"role": "system", "content": f"Generate one system prompt for the task, take a deep breath and be creative: {task}"}]
+    )
+    return response['choices'][0]['message']['content'].strip()
+
 def generate_responses(prompts, task):
     responses = []
-    for prompt in prompts:
-        response = openai.ChatCompletion.create(
-            model="gpt-4",
-            messages=[{"role": "system", "content": f"{prompt}: {task}"}],
-            max_tokens=500,
-            top_p=1,
-            frequency_penalty=0,
-            presence_penalty=0
-        )
-        responses.append(response['choices'][0]['message']['content'].strip())
+    with ThreadPoolExecutor(max_workers=len(prompts)) as executor:
+        future_to_resposne = {executor.submit(chat_completion, f"{prompt}: {task}"): prompt for prompt in prompts}
+        for future in concurrent.futures.as_completed(future_to_resposne):
+            try:
+                response = future.result()
+                responses.append(response)
+            except Exception as exc:
+                print('%r generated an exception: %s' % (future_to_response[future], exc))
+            
     return responses
-
 
 def evaluate_responses(responses, task):
     evaluation_prompt = f"Evaluate the quality of the following responses for the task '{task}', giving a score between 1 and 5 (5 being the highest). Create a markdown table showing the feedback and the results.:\n"
@@ -54,4 +63,3 @@ def evaluate_responses(responses, task):
         messages=[{"role": "system", "content": evaluation_prompt}]
     )
     return evaluation['choices'][0]['message']['content'].strip()
-

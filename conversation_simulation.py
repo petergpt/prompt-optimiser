@@ -18,11 +18,12 @@ def simulate_conversation(initial_message, num_prompts=4, existing_prompt=None):
 
     return messages
 
+# generate_prompts
 def generate_prompts(task, num_prompts=4, existing_prompt=None):
     prompts = []
     with ThreadPoolExecutor(max_workers=num_prompts) as executor:
         future_to_prompt = {executor.submit(chat_completion, task): i for i in range(num_prompts)}
-        for future in concurrent.futures.as_completed(future_to_prompt):
+        for future in as_completed(future_to_prompt):
             try:
                 prompt = future.result()
                 prompts.append(prompt)
@@ -33,18 +34,12 @@ def generate_prompts(task, num_prompts=4, existing_prompt=None):
         prompts.append(existing_prompt)
     return prompts
 
-def chat_completion(task):
-    response = openai.ChatCompletion.create(
-        model="gpt-4",
-        messages=[{"role": "system", "content": f"Generate one system prompt for the task, take a deep breath and be creative: {task}"}]
-    )
-    return response['choices'][0]['message']['content'].strip()
-
+# generate_responses
 def generate_responses(prompts, task):
     responses = []
     with ThreadPoolExecutor(max_workers=len(prompts)) as executor:
-        future_to_resposne = {executor.submit(chat_completion, f"{prompt}: {task}"): prompt for prompt in prompts}
-        for future in concurrent.futures.as_completed(future_to_resposne):
+        future_to_response = {executor.submit(chat_completion, f"{prompt}: {task}"): prompt for prompt in prompts}
+        for future in as_completed(future_to_response):
             try:
                 response = future.result()
                 responses.append(response)

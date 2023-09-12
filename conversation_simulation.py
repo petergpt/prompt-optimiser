@@ -1,4 +1,5 @@
 import openai
+openai.log='debug'
 
 def simulate_conversation(initial_message, num_prompts=4, existing_prompt=None):
     meta_prompt = f"{initial_message}\n"

@@ -22,10 +22,14 @@ def simulate_conversation(initial_message, num_prompts=4, existing_prompt=None):
 def generate_prompts(task, num_prompts=4, existing_prompt=None):
     prompts = []
     with ThreadPoolExecutor(max_workers=num_prompts) as executor:
-        future_to_prompt = {executor.submit(chat_completion, task): i for i in range(num_prompts)}
+        future_to_prompt = {executor.submit(openai.ChatCompletion.create,
+                                            model="gpt-3",
+                                            messages=[{"role": "system", 
+                                                       "content": f"Generate one system prompt for the task, take a deep breath and be creative: {task}"}]
+                                           ): i for i in range(num_prompts)}
         for future in as_completed(future_to_prompt):
             try:
-                prompt = future.result()
+                prompt = future.result()['choices'][0]['message']['content'].strip()
                 prompts.append(prompt)
             except Exception as exc:
                 print('%r generated an exception: %s' % (future_to_prompt[future], exc))
@@ -38,10 +42,17 @@ def generate_prompts(task, num_prompts=4, existing_prompt=None):
 def generate_responses(prompts, task):
     responses = []
     with ThreadPoolExecutor(max_workers=len(prompts)) as executor:
-        future_to_response = {executor.submit(chat_completion, f"{prompt}: {task}"): prompt for prompt in prompts}
+        future_to_response = {executor.submit(openai.ChatCompletion.create,
+                                              model="gpt-3",
+                                              messages=[{"role": "system", "content": f"{prompt}: {task}"}],
+                                              max_tokens=500,
+                                              top_p=1,
+                                              frequency_penalty=0,
+                                              presence_penalty=0
+                                             ): prompt for prompt in prompts}
         for future in as_completed(future_to_response):
             try:
-                response = future.result()
+                response = future.result()['choices'][0]['message']['content'].strip()
                 responses.append(response)
             except Exception as exc:
                 print('%r generated an exception: %s' % (future_to_response[future], exc))
